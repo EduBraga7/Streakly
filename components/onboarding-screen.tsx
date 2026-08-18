@@ -65,14 +65,17 @@ const HABIT_TEMPLATES = [
 ]
 
 export function OnboardingScreen() {
-  const { completeOnboarding } = useTracker()
+  const { completeOnboarding, updateUserName, user } = useTracker()
   const [step, setStep] = React.useState(1)
 
   // Step 1 State
+  const [userName, setUserName] = React.useState(user?.displayName?.split(" ")[0] || "")
+
+  // Step 2 State
   const [habitId, setHabitId] = React.useState<string | null>(null)
   const [customHabitName, setCustomHabitName] = React.useState("")
 
-  // Step 2 State
+  // Step 3 State
   const [triggers, setTriggers] = React.useState<{ id: string; label: string }[]>([])
   const [newTrigger, setNewTrigger] = React.useState("")
 
@@ -86,12 +89,8 @@ export function OnboardingScreen() {
     }
   }, [habitId])
 
-  const handleNextStep1 = () => {
-    if (habitId) setStep(2)
-  }
-
   const handleNextStep2 = () => {
-    if (triggers.length > 0) setStep(3)
+    if (habitId) setStep(3)
   }
 
   const handleAddTrigger = () => {
@@ -107,6 +106,9 @@ export function OnboardingScreen() {
 
   const handleComplete = () => {
     const finalName = habitId === "custom" && customHabitName.trim() ? customHabitName.trim() : HABIT_TEMPLATES.find(h => h.id === habitId)?.name ?? "Hábito"
+    if (userName.trim()) {
+      updateUserName(userName.trim())
+    }
     completeOnboarding({
       id: habitId!,
       name: finalName,
@@ -129,10 +131,38 @@ export function OnboardingScreen() {
         <div className="flex items-center gap-2 mb-4">
           <div className={cn("h-1.5 flex-1 rounded-full transition-colors", step >= 1 ? "bg-primary" : "bg-muted")} />
           <div className={cn("h-1.5 flex-1 rounded-full transition-colors", step >= 2 ? "bg-primary" : "bg-muted")} />
+          <div className={cn("h-1.5 flex-1 rounded-full transition-colors", step >= 3 ? "bg-primary" : "bg-muted")} />
         </div>
 
-        {/* Step 1: Escolha do Hábito */}
+        {/* Step 1: Nome do Usuário */}
         {step === 1 && (
+          <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex flex-col gap-2 text-center">
+              <h1 className="text-2xl font-bold">Como quer ser chamado?</h1>
+              <p className="text-sm text-muted-foreground">
+                Vamos personalizar a sua experiência.
+              </p>
+            </div>
+
+            <Input 
+              placeholder="Seu nome ou apelido" 
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              className="h-14 rounded-xl text-lg text-center"
+            />
+
+            <Button 
+              onClick={() => setStep(2)} 
+              disabled={!userName.trim()}
+              className="w-full h-14 rounded-xl mt-4 text-base font-semibold"
+            >
+              Continuar <ArrowRight className="ml-2 size-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* Step 2: Escolha do Hábito */}
+        {step === 2 && (
           <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex flex-col gap-2 text-center">
               <h1 className="text-2xl font-bold">O que você quer vencer?</h1>
@@ -171,18 +201,23 @@ export function OnboardingScreen() {
               </div>
             )}
 
-            <Button 
-              onClick={handleNextStep1} 
-              disabled={!habitId || (habitId === "custom" && !customHabitName.trim())}
-              className="w-full h-14 rounded-xl mt-4 text-base font-semibold"
-            >
-              Continuar <ArrowRight className="ml-2 size-4" />
-            </Button>
+            <div className="flex gap-3 mt-4">
+              <Button onClick={() => setStep(1)} variant="ghost" className="h-14 rounded-xl px-6">
+                Voltar
+              </Button>
+              <Button 
+                onClick={handleNextStep2} 
+                disabled={!habitId || (habitId === "custom" && !customHabitName.trim())}
+                className="flex-1 h-14 rounded-xl text-base font-semibold"
+              >
+                Continuar <ArrowRight className="ml-2 size-4" />
+              </Button>
+            </div>
           </div>
         )}
 
-        {/* Step 2: Gatilhos */}
-        {step === 2 && (
+        {/* Step 3: Gatilhos */}
+        {step === 3 && (
           <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex flex-col gap-2 text-center">
               <h1 className="text-2xl font-bold">Mapeie seus Gatilhos</h1>
@@ -222,7 +257,7 @@ export function OnboardingScreen() {
             </div>
 
             <div className="flex gap-3 mt-4">
-              <Button onClick={() => setStep(1)} variant="ghost" className="h-14 rounded-xl px-6">
+              <Button onClick={() => setStep(2)} variant="ghost" className="h-14 rounded-xl px-6">
                 Voltar
               </Button>
               <Button 

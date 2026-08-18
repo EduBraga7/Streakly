@@ -32,6 +32,7 @@ function coerce(raw: unknown): TrackerState {
   const value = raw as Partial<TrackerState>
   return {
     habit: value.habit && typeof value.habit === "object" ? (value.habit as any) : null,
+    userName: typeof value.userName === "string" ? value.userName : undefined,
     streakStart:
       typeof value.streakStart === "string" ? value.streakStart : base.streakStart,
     bestStreakDays:

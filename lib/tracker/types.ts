@@ -18,6 +18,8 @@ export interface HabitData {
 export interface TrackerState {
   /** Habit configuration for this tracker. Null means the user hasn't completed onboarding. */
   habit: HabitData | null
+  /** User's preferred display name */
+  userName?: string
   /** ISO timestamp marking the start of the current clean streak. */
   streakStart: string
   /** Longest streak ever reached, in whole days. */

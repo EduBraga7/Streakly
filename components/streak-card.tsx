@@ -1,6 +1,5 @@
 "use client"
-
-import { Award, Flame } from "lucide-react"
+import { Award } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -40,8 +39,7 @@ export function StreakCard() {
       
       <CardContent className="relative flex flex-col items-center gap-8 py-10">
         <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
-          <Flame className="size-4 text-primary" />
-          Tempo Limpo
+          Foco Contínuo
         </div>
 
         <div className="relative">

@@ -37,6 +37,7 @@ interface TrackerContextValue {
   undoLastAction: () => void
   editHistoryEntry: (dateKey: string, status: DayStatus | null) => void
   completeOnboarding: (habit: HabitData) => void
+  updateUserName: (name: string) => void
   canUndo: boolean
   checkedInToday: boolean
   linkWithGoogle: () => Promise<void>
@@ -204,6 +205,10 @@ export function TrackerProvider({
     setState((prev) => ({ ...prev, habit }))
   }, [])
 
+  const updateUserName = React.useCallback((name: string) => {
+    setState((prev) => ({ ...prev, userName: name }))
+  }, [])
+
   const checkedInToday = state.history[dayKey(new Date())] === "clean"
 
   const value = React.useMemo<TrackerContextValue>(
@@ -219,12 +224,13 @@ export function TrackerProvider({
       undoLastAction,
       editHistoryEntry,
       completeOnboarding,
+      updateUserName,
       canUndo: previousState !== null,
       checkedInToday,
       linkWithGoogle,
       logout,
     }),
-    [state, dataReady, user, checkIn, markCrisisSurvived, registerRelapse, updateLetter, resetAll, undoLastAction, editHistoryEntry, completeOnboarding, previousState, checkedInToday, linkWithGoogle, logout],
+    [state, dataReady, user, checkIn, markCrisisSurvived, registerRelapse, updateLetter, resetAll, undoLastAction, editHistoryEntry, completeOnboarding, updateUserName, previousState, checkedInToday, linkWithGoogle, logout],
   )
 
   // ── Render gates ──────────────────────────────────────────

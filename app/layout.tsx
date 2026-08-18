@@ -46,7 +46,11 @@ export const viewport: Viewport = {
     { media: '(prefers-color-scheme: light)', color: '#f3f4f6' },
     { media: '(prefers-color-scheme: dark)', color: '#0a0b0f' },
   ],
+  width: 'device-width',
+  initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 }
 
 import { Toaster } from '@/components/ui/sonner'

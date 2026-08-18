@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
@@ -39,8 +40,9 @@ function GoogleIcon() {
 }
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
-  const { state, updateLetter, resetAll, user, linkWithGoogle, logout } = useTracker()
+  const { state, updateLetter, updateUserName, resetAll, user, linkWithGoogle, logout } = useTracker()
   const [draft, setDraft] = React.useState(state.letterToSelf)
+  const [nameDraft, setNameDraft] = React.useState(state.userName || user?.displayName?.split(" ")[0] || "")
   const [confirmReset, setConfirmReset] = React.useState(false)
   const [linking, setLinking] = React.useState(false)
   const [linkError, setLinkError] = React.useState<string | null>(null)
@@ -52,10 +54,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   React.useEffect(() => {
     if (open) {
       setDraft(state.letterToSelf)
+      setNameDraft(state.userName || user?.displayName?.split(" ")[0] || "")
       setConfirmReset(false)
       setLinkError(null)
     }
-  }, [open, state.letterToSelf])
+  }, [open, state.letterToSelf, state.userName, user?.displayName])
 
   function handleLinkWithGoogle() {
     setLinking(true)
@@ -149,6 +152,31 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 </Button>
               </div>
             )}
+          </div>
+
+          <Separator />
+
+          {/* ── Perfil ── */}
+          <div className="flex flex-col gap-2.5">
+            <Label htmlFor="userName" className="text-sm font-medium">
+              Como quer ser chamado?
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="userName"
+                value={nameDraft}
+                onChange={(e) => setNameDraft(e.target.value)}
+                placeholder="Seu nome ou apelido"
+                className="h-9"
+              />
+              <Button
+                size="sm"
+                className="shrink-0 h-9"
+                onClick={() => updateUserName(nameDraft.trim())}
+              >
+                Salvar
+              </Button>
+            </div>
           </div>
 
           <Separator />

@@ -23,7 +23,7 @@ export function Dashboard() {
   const [analyticsOpen, setAnalyticsOpen] = React.useState(false)
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-7 px-5 pt-6 pb-12">
+    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-7 px-5 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-[calc(3rem+env(safe-area-inset-bottom))]">
       <AppHeader onOpenSettings={() => setSettingsOpen(true)} onOpenAchievements={() => setAchievementsOpen(true)} />
 
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both">
