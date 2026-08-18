@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Shield, Flame } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { signInAnonymously, signInWithPopup, AuthErrorCodes } from "firebase/auth"
+import { signInWithPopup, AuthErrorCodes } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { googleProvider } from "@/components/tracker-provider"
 
@@ -25,10 +25,9 @@ function GoogleIcon() {
 
 export function LoginScreen() {
   const [loadingGoogle, setLoadingGoogle] = React.useState(false)
-  const [loadingAnon, setLoadingAnon] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
-  const isLoading = loadingGoogle || loadingAnon
+  const isLoading = loadingGoogle
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 py-12">
@@ -101,35 +100,6 @@ export function LoginScreen() {
             )}
             {loadingGoogle ? "Entrando..." : "Continuar com o Google"}
           </Button>
-
-          <div className="flex items-center gap-3 text-muted-foreground/50">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs">ou</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button
-            id="btn-continue-anon"
-            size="lg"
-            variant="ghost"
-            className="w-full text-muted-foreground hover:text-foreground"
-            disabled={isLoading}
-            onClick={() => {
-              const authPromise = signInAnonymously(auth)
-              setLoadingAnon(true)
-              setError(null)
-              
-              authPromise.catch((err: any) => {
-                setError(`Erro: ${err?.code ?? "Tente novamente."}`)
-                setLoadingAnon(false)
-              })
-            }}
-          >
-            {loadingAnon ? (
-              <div className="size-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent mr-2" />
-            ) : null}
-            {loadingAnon ? "Carregando..." : "Continuar sem conta"}
-          </Button>
         </div>
 
         {error && (
@@ -137,9 +107,8 @@ export function LoginScreen() {
         )}
 
         {/* Footer note */}
-        <p className="text-center text-xs leading-relaxed text-muted-foreground/60 max-w-xs">
-          Ao continuar sem conta, seu progresso fica salvo apenas neste dispositivo.
-          Entre com o Google para sincronizar em qualquer lugar.
+        <p className="text-center text-xs leading-relaxed text-muted-foreground/60 max-w-xs mt-4">
+          Crie ou entre na sua conta para iniciar seu Onboarding.
         </p>
       </div>
     </div>

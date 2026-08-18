@@ -6,13 +6,25 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useTracker } from "@/components/tracker-provider"
 
+import { toast } from "sonner"
+
 interface QuickActionsProps {
   onOpenSos: () => void
   onOpenRelapse: () => void
 }
 
 export function QuickActions({ onOpenSos, onOpenRelapse }: QuickActionsProps) {
-  const { checkIn, checkedInToday } = useTracker()
+  const { checkIn, checkedInToday, undoLastAction } = useTracker()
+
+  const handleCheckIn = () => {
+    checkIn()
+    toast.success("Check-in diário concluído!", {
+      action: {
+        label: "Desfazer",
+        onClick: () => undoLastAction(),
+      },
+    })
+  }
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -32,7 +44,7 @@ export function QuickActions({ onOpenSos, onOpenRelapse }: QuickActionsProps) {
 
       <div className="grid grid-cols-2 gap-3.5">
         <Button
-          onClick={checkIn}
+          onClick={handleCheckIn}
           disabled={checkedInToday}
           className={cn(
             "h-14 rounded-2xl text-sm font-semibold transition-all duration-300",

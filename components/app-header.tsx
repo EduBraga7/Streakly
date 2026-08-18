@@ -1,12 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Settings, Sun } from "lucide-react"
+import { Moon, Settings, Sun, Trophy } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
 interface AppHeaderProps {
   onOpenSettings: () => void
+  onOpenAchievements: () => void
 }
 
 const THEME_KEY = "reset.theme"
@@ -35,7 +36,7 @@ function useDarkMode() {
   return { dark, toggle }
 }
 
-export function AppHeader({ onOpenSettings }: AppHeaderProps) {
+export function AppHeader({ onOpenSettings, onOpenAchievements }: AppHeaderProps) {
   const { dark, toggle } = useDarkMode()
 
   return (
@@ -55,6 +56,15 @@ export function AppHeader({ onOpenSettings }: AppHeaderProps) {
       </div>
 
       <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onOpenAchievements}
+          aria-label="Conquistas"
+          className="text-muted-foreground hover:text-yellow-500"
+        >
+          <Trophy className="size-4" />
+        </Button>
         <Button
           variant="ghost"
           size="icon"

@@ -118,3 +118,41 @@ export function mostFrequentTrigger(state: TrackerState): string | null {
   }
   return best
 }
+
+export function getTriggersFrequency(state: TrackerState) {
+  if (state.relapses.length === 0) return []
+
+  const counts = new Map<string, number>()
+  for (const r of state.relapses) {
+    counts.set(r.trigger, (counts.get(r.trigger) ?? 0) + 1)
+  }
+
+  const out = Array.from(counts.entries()).map(([id, count]) => {
+    const label = state.habit?.triggers.find(t => t.id === id)?.label || id
+    return { id, label, count }
+  })
+
+  // Sort descending
+  out.sort((a, b) => b.count - a.count)
+  return out
+}
+
+export function getRelapsesByDayOfWeek(state: TrackerState) {
+  const weekDays = [
+    { day: "Dom", fullDay: "Domingo", count: 0 },
+    { day: "Seg", fullDay: "Segunda-feira", count: 0 },
+    { day: "Ter", fullDay: "Terça-feira", count: 0 },
+    { day: "Qua", fullDay: "Quarta-feira", count: 0 },
+    { day: "Qui", fullDay: "Quinta-feira", count: 0 },
+    { day: "Sex", fullDay: "Sexta-feira", count: 0 },
+    { day: "Sáb", fullDay: "Sábado", count: 0 },
+  ]
+
+  for (const r of state.relapses) {
+    const d = new Date(r.date)
+    const dayIndex = d.getDay() // 0 = Sunday, 1 = Monday...
+    weekDays[dayIndex].count++
+  }
+
+  return weekDays
+}

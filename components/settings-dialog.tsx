@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Save, TriangleAlert, LogIn, LogOut, Shield, Loader2 } from "lucide-react"
+import { Save, TriangleAlert, LogIn, LogOut, Shield, Loader2, Bell } from "lucide-react"
 
 import {
   Dialog,
@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useTracker } from "@/components/tracker-provider"
+import { requestNotificationPermission } from "@/lib/firebase/messaging"
 
 interface SettingsDialogProps {
   open: boolean
@@ -43,6 +44,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [confirmReset, setConfirmReset] = React.useState(false)
   const [linking, setLinking] = React.useState(false)
   const [linkError, setLinkError] = React.useState<string | null>(null)
+  const [pushToken, setPushToken] = React.useState<string | null>(null)
+  const [pushLoading, setPushLoading] = React.useState(false)
 
   const isAnonymous = !user || user.isAnonymous
 
@@ -70,6 +73,15 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   async function handleLogout() {
     await logout()
     onOpenChange(false)
+  }
+
+  async function handleNotificationRequest() {
+    setPushLoading(true)
+    const token = await requestNotificationPermission()
+    if (token) {
+      setPushToken(token)
+    }
+    setPushLoading(false)
   }
 
   return (
@@ -162,6 +174,36 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               <Save data-icon="inline-start" className="size-3.5" />
               Salvar carta
             </Button>
+          </div>
+
+          <Separator />
+
+          {/* ── Notifications section ── */}
+          <div className="flex flex-col gap-2.5">
+            <Label className="text-sm font-medium">Notificações</Label>
+            <div className="rounded-xl border border-dashed border-muted-foreground/30 bg-muted/30 p-4 flex flex-col gap-3">
+              <div className="flex items-start gap-3">
+                <Bell className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Receba lembretes diários para não esquecer de fazer o check-in e manter seu streak.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="self-start gap-2"
+                onClick={handleNotificationRequest}
+                disabled={pushLoading || !!pushToken}
+              >
+                {pushLoading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : pushToken ? (
+                  "Notificações Ativas"
+                ) : (
+                  "Ativar Lembretes"
+                )}
+              </Button>
+            </div>
           </div>
 
           <Separator />

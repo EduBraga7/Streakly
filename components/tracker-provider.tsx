@@ -19,9 +19,11 @@ import {
   type TrackerRepository,
 } from "@/lib/tracker/storage"
 import { createFirebaseRepository } from "@/lib/tracker/firebase-storage"
-import type { TrackerState, TriggerId } from "@/lib/tracker/types"
+import type { TrackerState, TriggerId, DayStatus, HabitData } from "@/lib/tracker/types"
 import { dayKey, getElapsed } from "@/lib/tracker/utils"
+import { recalculateState } from "@/lib/tracker/recalculate"
 import { LoginScreen } from "@/components/login-screen"
+import { OnboardingScreen } from "@/components/onboarding-screen"
 
 interface TrackerContextValue {
   state: TrackerState
@@ -32,6 +34,10 @@ interface TrackerContextValue {
   registerRelapse: (trigger: TriggerId, reflection: string) => void
   updateLetter: (text: string) => void
   resetAll: () => void
+  undoLastAction: () => void
+  editHistoryEntry: (dateKey: string, status: DayStatus | null) => void
+  completeOnboarding: (habit: HabitData) => void
+  canUndo: boolean
   checkedInToday: boolean
   linkWithGoogle: () => Promise<void>
   logout: () => Promise<void>
@@ -54,6 +60,7 @@ export function TrackerProvider({
    *  'ready'   = user logged in → show the app */
   const [authStage, setAuthStage] = React.useState<"loading" | "login" | "ready">("loading")
   const [state, setState] = React.useState<TrackerState>(() => createInitialState())
+  const [previousState, setPreviousState] = React.useState<TrackerState | null>(null)
   const [dataReady, setDataReady] = React.useState(false)
   const [repository, setRepository] = React.useState<TrackerRepository | null>(null)
 
@@ -128,6 +135,7 @@ export function TrackerProvider({
     setState((prev) => {
       const key = dayKey(new Date())
       if (prev.history[key] === "relapse") return prev
+      setPreviousState(prev)
       return { ...prev, history: { ...prev.history, [key]: "clean" } }
     })
   }, [])
@@ -136,6 +144,7 @@ export function TrackerProvider({
     setState((prev) => {
       const key = dayKey(new Date())
       if (prev.history[key] === "relapse") return prev
+      setPreviousState(prev)
       return { ...prev, history: { ...prev.history, [key]: "crisis" } }
     })
   }, [])
@@ -143,6 +152,7 @@ export function TrackerProvider({
   const registerRelapse = React.useCallback(
     (trigger: TriggerId, reflection: string) => {
       setState((prev) => {
+        setPreviousState(prev)
         const now = Date.now()
         const currentDays = getElapsed(prev.streakStart, now).days
         const key = dayKey(new Date(now))
@@ -167,6 +177,31 @@ export function TrackerProvider({
 
   const resetAll = React.useCallback(() => {
     setState(createInitialState())
+    setPreviousState(null)
+  }, [])
+
+  const undoLastAction = React.useCallback(() => {
+    if (previousState) {
+      setState(previousState)
+      setPreviousState(null)
+    }
+  }, [previousState])
+
+  const editHistoryEntry = React.useCallback((dateKey: string, status: DayStatus | null) => {
+    setState((prev) => {
+      const newHistory = { ...prev.history }
+      if (status === null) {
+        delete newHistory[dateKey]
+      } else {
+        newHistory[dateKey] = status
+      }
+      const newState = { ...prev, history: newHistory }
+      return recalculateState(newState)
+    })
+  }, [])
+
+  const completeOnboarding = React.useCallback((habit: HabitData) => {
+    setState((prev) => ({ ...prev, habit }))
   }, [])
 
   const checkedInToday = state.history[dayKey(new Date())] === "clean"
@@ -181,11 +216,15 @@ export function TrackerProvider({
       registerRelapse,
       updateLetter,
       resetAll,
+      undoLastAction,
+      editHistoryEntry,
+      completeOnboarding,
+      canUndo: previousState !== null,
       checkedInToday,
       linkWithGoogle,
       logout,
     }),
-    [state, dataReady, user, checkIn, markCrisisSurvived, registerRelapse, updateLetter, resetAll, checkedInToday, linkWithGoogle, logout],
+    [state, dataReady, user, checkIn, markCrisisSurvived, registerRelapse, updateLetter, resetAll, undoLastAction, editHistoryEntry, completeOnboarding, previousState, checkedInToday, linkWithGoogle, logout],
   )
 
   // ── Render gates ──────────────────────────────────────────
@@ -203,6 +242,15 @@ export function TrackerProvider({
 
   if (authStage === "login") {
     return <LoginScreen />
+  }
+
+  // Se logado mas sem hábito configurado, mostrar Onboarding
+  if (dataReady && !state.habit) {
+    return (
+      <TrackerContext.Provider value={value}>
+        <OnboardingScreen />
+      </TrackerContext.Provider>
+    )
   }
 
   return (

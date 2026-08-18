@@ -19,7 +19,11 @@ const STATUS_STYLES: Record<
   today: { dot: "bg-muted-foreground/30", label: "Hoje" },
 }
 
-export function WeekCalendar() {
+interface WeekCalendarProps {
+  onOpenHistory?: () => void
+}
+
+export function WeekCalendar({ onOpenHistory }: WeekCalendarProps) {
   const { state } = useTracker()
   const liveNow = useNow(60_000)
   // Anchor to the streak start pre-mount so the 7-day window matches between
@@ -30,8 +34,16 @@ export function WeekCalendar() {
 
   return (
     <Card className="border-border/60">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="text-sm font-medium">Últimos 7 dias</CardTitle>
+        {onOpenHistory && (
+          <button 
+            onClick={onOpenHistory}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            Ver mês a mês
+          </button>
+        )}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="grid grid-cols-7 gap-1.5">

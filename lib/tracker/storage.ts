@@ -17,6 +17,7 @@ const STORAGE_KEY = "reset.tracker.v1"
 
 export function createInitialState(now: number = Date.now()): TrackerState {
   return {
+    habit: null,
     streakStart: new Date(now).toISOString(),
     bestStreakDays: 0,
     letterToSelf: DEFAULT_LETTER,

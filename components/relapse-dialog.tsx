@@ -14,8 +14,10 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { TRIGGERS, type TriggerId } from "@/lib/tracker/types"
+import { type TriggerId } from "@/lib/tracker/types"
 import { useTracker } from "@/components/tracker-provider"
+
+import { toast } from "sonner"
 
 interface RelapseDialogProps {
   open: boolean
@@ -23,7 +25,7 @@ interface RelapseDialogProps {
 }
 
 export function RelapseDialog({ open, onOpenChange }: RelapseDialogProps) {
-  const { registerRelapse } = useTracker()
+  const { state, registerRelapse, undoLastAction } = useTracker()
   const [trigger, setTrigger] = React.useState<TriggerId | null>(null)
   const [reflection, setReflection] = React.useState("")
 
@@ -38,6 +40,13 @@ export function RelapseDialog({ open, onOpenChange }: RelapseDialogProps) {
     if (!trigger) return
     registerRelapse(trigger, reflection.trim())
     onOpenChange(false)
+    toast.error("Recaída registrada.", {
+      description: "Seu cronômetro foi reiniciado.",
+      action: {
+        label: "Desfazer",
+        onClick: () => undoLastAction(),
+      },
+    })
   }
 
   return (
@@ -62,7 +71,7 @@ export function RelapseDialog({ open, onOpenChange }: RelapseDialogProps) {
               variant="outline"
               className="flex flex-wrap gap-2"
             >
-              {TRIGGERS.map((t) => (
+              {state.habit?.triggers.map((t) => (
                 <ToggleGroupItem
                   key={t.id}
                   value={t.id}

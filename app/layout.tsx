@@ -49,6 +49,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
 }
 
+import { Toaster } from '@/components/ui/sonner'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -58,6 +60,7 @@ export default function RootLayout({
     <html lang="pt-BR" className={`dark ${geistSans.variable}`} suppressHydrationWarning>
       <body className="bg-background font-sans antialiased">
         {children}
+        <Toaster position="bottom-center" />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
