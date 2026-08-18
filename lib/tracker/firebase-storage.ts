@@ -9,6 +9,7 @@ function coerce(raw: unknown): TrackerState {
   if (!raw || typeof raw !== "object") return base
   const value = raw as Partial<TrackerState>
   return {
+    habit: value.habit && typeof value.habit === "object" ? (value.habit as any) : null,
     streakStart:
       typeof value.streakStart === "string" ? value.streakStart : base.streakStart,
     bestStreakDays:

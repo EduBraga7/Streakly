@@ -86,6 +86,16 @@ export function LoginScreen() {
               setError(null)
 
               authPromise.catch((err: any) => {
+                if (err.code === "auth/popup-blocked") {
+                  import("firebase/auth").then(({ signInWithRedirect }) => {
+                    signInWithRedirect(auth, googleProvider).catch((redirectErr) => {
+                      setError(`Erro no redirecionamento: ${redirectErr?.code ?? "Falha ao entrar com Google"}`)
+                      setLoadingGoogle(false)
+                    })
+                  })
+                  return;
+                }
+                
                 if (err.code !== AuthErrorCodes.POPUP_CLOSED_BY_USER) {
                   setError(`Erro: ${err?.code ?? "Falha ao entrar com Google"}`)
                 }
