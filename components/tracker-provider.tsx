@@ -132,27 +132,27 @@ export function TrackerProvider({
   // ── Tracker mutations ─────────────────────────────────────
 
   const checkIn = React.useCallback(() => {
+    setPreviousState(state)
     setState((prev) => {
       const key = dayKey(new Date())
       if (prev.history[key] === "relapse") return prev
-      setPreviousState(prev)
       return { ...prev, history: { ...prev.history, [key]: "clean" } }
     })
-  }, [])
+  }, [state])
 
   const markCrisisSurvived = React.useCallback(() => {
+    setPreviousState(state)
     setState((prev) => {
       const key = dayKey(new Date())
       if (prev.history[key] === "relapse") return prev
-      setPreviousState(prev)
       return { ...prev, history: { ...prev.history, [key]: "crisis" } }
     })
-  }, [])
+  }, [state])
 
   const registerRelapse = React.useCallback(
     (trigger: TriggerId, reflection: string) => {
+      setPreviousState(state)
       setState((prev) => {
-        setPreviousState(prev)
         const now = Date.now()
         const currentDays = getElapsed(prev.streakStart, now).days
         const key = dayKey(new Date(now))
@@ -168,7 +168,7 @@ export function TrackerProvider({
         }
       })
     },
-    [],
+    [state],
   )
 
   const updateLetter = React.useCallback((text: string) => {
