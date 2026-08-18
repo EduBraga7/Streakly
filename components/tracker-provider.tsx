@@ -38,6 +38,9 @@ interface TrackerContextValue {
   editHistoryEntry: (dateKey: string, status: DayStatus | null) => void
   completeOnboarding: (habit: HabitData) => void
   updateUserName: (name: string) => void
+  addTrigger: (label: string) => void
+  removeTrigger: (id: TriggerId) => void
+  updateTrigger: (id: TriggerId, label: string) => void
   canUndo: boolean
   checkedInToday: boolean
   linkWithGoogle: () => Promise<void>
@@ -209,6 +212,48 @@ export function TrackerProvider({
     setState((prev) => ({ ...prev, userName: name }))
   }, [])
 
+  const addTrigger = React.useCallback((label: string) => {
+    setState((prev) => {
+      if (!prev.habit) return prev
+      const newTrigger = { id: crypto.randomUUID(), label }
+      return {
+        ...prev,
+        habit: {
+          ...prev.habit,
+          triggers: [...prev.habit.triggers, newTrigger],
+        },
+      }
+    })
+  }, [])
+
+  const removeTrigger = React.useCallback((id: TriggerId) => {
+    setState((prev) => {
+      if (!prev.habit) return prev
+      return {
+        ...prev,
+        habit: {
+          ...prev.habit,
+          triggers: prev.habit.triggers.filter((t) => t.id !== id),
+        },
+      }
+    })
+  }, [])
+
+  const updateTrigger = React.useCallback((id: TriggerId, label: string) => {
+    setState((prev) => {
+      if (!prev.habit) return prev
+      return {
+        ...prev,
+        habit: {
+          ...prev.habit,
+          triggers: prev.habit.triggers.map((t) =>
+            t.id === id ? { ...t, label } : t
+          ),
+        },
+      }
+    })
+  }, [])
+
   const checkedInToday = state.history[dayKey(new Date())] === "clean"
 
   const value = React.useMemo<TrackerContextValue>(
@@ -225,12 +270,15 @@ export function TrackerProvider({
       editHistoryEntry,
       completeOnboarding,
       updateUserName,
+      addTrigger,
+      removeTrigger,
+      updateTrigger,
       canUndo: previousState !== null,
       checkedInToday,
       linkWithGoogle,
       logout,
     }),
-    [state, dataReady, user, checkIn, markCrisisSurvived, registerRelapse, updateLetter, resetAll, undoLastAction, editHistoryEntry, completeOnboarding, updateUserName, previousState, checkedInToday, linkWithGoogle, logout],
+    [state, dataReady, user, checkIn, markCrisisSurvived, registerRelapse, updateLetter, resetAll, undoLastAction, editHistoryEntry, completeOnboarding, updateUserName, addTrigger, removeTrigger, updateTrigger, previousState, checkedInToday, linkWithGoogle, logout],
   )
 
   // ── Render gates ──────────────────────────────────────────
