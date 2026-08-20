@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'Streakly',
     short_name: 'Streakly',
     description: 'Foco diário. Um dia de cada vez.',
-    start_url: '/',
+    start_url: '/app',
     display: 'standalone',
     background_color: '#0a0b0f',
     theme_color: '#0a0b0f',
