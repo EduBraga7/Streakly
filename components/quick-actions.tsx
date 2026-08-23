@@ -5,32 +5,39 @@ import { CheckCircle2, LifeBuoy, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useTracker } from "@/components/tracker-provider"
+import { triggerHaptic, triggerMiniConfetti } from "@/lib/feedback"
 
 import { toast } from "sonner"
 
 interface QuickActionsProps {
   onOpenSos: () => void
   onOpenRelapse: () => void
+  onOpenCheckin: () => void
 }
 
-export function QuickActions({ onOpenSos, onOpenRelapse }: QuickActionsProps) {
-  const { checkIn, checkedInToday, undoLastAction } = useTracker()
+export function QuickActions({ onOpenSos, onOpenRelapse, onOpenCheckin }: QuickActionsProps) {
+  const { checkedInToday } = useTracker()
 
   const handleCheckIn = () => {
-    checkIn()
-    toast.success("Check-in diário concluído!", {
-      action: {
-        label: "Desfazer",
-        onClick: () => undoLastAction(),
-      },
-    })
+    triggerHaptic("light")
+    onOpenCheckin()
+  }
+
+  const handleOpenSos = () => {
+    triggerHaptic("medium")
+    onOpenSos()
+  }
+
+  const handleOpenRelapse = () => {
+    triggerHaptic("light")
+    onOpenRelapse()
   }
 
   return (
     <div className="flex flex-col gap-3.5">
       {/* Máximo destaque: momento de crise */}
       <Button
-        onClick={onOpenSos}
+        onClick={handleOpenSos}
         className={cn(
           "relative overflow-hidden h-16 rounded-2xl bg-destructive text-base font-bold text-destructive-foreground",
           "shadow-[0_8px_24px_-8px_var(--color-destructive)] transition-all duration-300",
@@ -58,7 +65,7 @@ export function QuickActions({ onOpenSos, onOpenRelapse }: QuickActionsProps) {
         </Button>
 
         <Button
-          onClick={onOpenRelapse}
+          onClick={handleOpenRelapse}
           variant="ghost"
           className="h-14 rounded-2xl text-sm font-medium text-muted-foreground bg-transparent border border-transparent hover:bg-muted/50 hover:text-foreground active:scale-95 transition-all duration-300"
         >

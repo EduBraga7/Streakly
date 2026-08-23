@@ -1,5 +1,7 @@
 "use client"
-import { Award } from "lucide-react"
+
+import { Award, Share2 } from "lucide-react"
+import * as React from "react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,20 +13,48 @@ import {
   getFractionalDays,
   getMilestoneProgress,
 } from "@/lib/tracker/utils"
+import { updateAppBadge } from "@/lib/pwa/badging"
+import { triggerHaptic } from "@/lib/feedback"
 
-export function StreakCard() {
-  const { state } = useTracker()
+/**
+ * Subcomponent that isolates the 1-second interval ticking
+ * so only this pill re-renders every second, not the entire StreakCard tree.
+ */
+function LiveTimePill({ streakStart }: { streakStart: string }) {
   const liveNow = useNow(1000)
-  // Before the client mounts, anchor "now" to the streak start so elapsed time
-  // renders as zero — matching the server render exactly.
-  const now = liveNow ?? new Date(state.streakStart).getTime()
-
-  const elapsed = getElapsed(state.streakStart, now)
-  const fractional = getFractionalDays(state.streakStart, now)
-  const milestone = getMilestoneProgress(fractional)
-  const best = Math.max(state.bestStreakDays, elapsed.days)
-
+  const now = liveNow ?? new Date(streakStart).getTime()
+  const elapsed = getElapsed(streakStart, now)
   const timeParts = formatElapsed(elapsed)
+
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full bg-secondary/80 px-3 py-1 font-mono text-xs text-muted-foreground border border-border/40 mt-3"
+      aria-hidden="true"
+    >
+      <span className="inline-block size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+      {timeParts}
+    </span>
+  )
+}
+
+interface StreakCardProps {
+  onOpenShare?: () => void
+}
+
+export function StreakCard({ onOpenShare }: StreakCardProps) {
+  const { state } = useTracker()
+  // Reduce tick rate for milestone calculation to 10s instead of 1s
+  const liveNow = useNow(10_000)
+  const now = liveNow ?? new Date(state.streakStart).getTime()
+  const elapsed = getElapsed(state.streakStart, now)
+  const fractionalDays = getFractionalDays(state.streakStart, now)
+  const milestone = getMilestoneProgress(fractionalDays)
+  const best = state.bestStreakDays
+  const timeParts = formatElapsed(elapsed)
+
+  React.useEffect(() => {
+    updateAppBadge(elapsed.days)
+  }, [elapsed.days])
 
   return (
     <Card className="relative overflow-hidden border-border/40 glass-card">
@@ -37,9 +67,25 @@ export function StreakCard() {
         className="pointer-events-none absolute -left-10 top-20 h-32 w-32 bg-success/5 blur-3xl rounded-full"
       />
       
-      <CardContent className="relative flex flex-col items-center gap-8 py-10">
-        <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
-          Foco Contínuo
+      <CardContent className="relative flex flex-col items-center gap-8 py-8">
+        <div className="w-full flex items-center justify-between px-2">
+          <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
+            Foco Contínuo
+          </div>
+          {onOpenShare && (
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic("light")
+                onOpenShare()
+              }}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors px-2.5 py-1 rounded-lg hover:bg-primary/10 cursor-pointer"
+              title="Compartilhar Conquista (Story/WhatsApp)"
+            >
+              <Share2 className="size-3.5 text-primary" />
+              <span className="text-[11px] font-semibold text-foreground">Compartilhar</span>
+            </button>
+          )}
         </div>
 
         <div className="relative">
@@ -51,9 +97,7 @@ export function StreakCard() {
               <span className="text-sm font-medium tracking-widest text-muted-foreground uppercase mt-1">
                 {elapsed.days === 1 ? "dia" : "dias"}
               </span>
-              <span className="mt-5 text-sm font-semibold tracking-wider tabular-nums text-primary bg-primary/10 px-3 py-1 rounded-full ring-1 ring-primary/20">
-                {`${`${elapsed.hours}`.padStart(2, "0")}:${`${elapsed.minutes}`.padStart(2, "0")}:${`${elapsed.seconds}`.padStart(2, "0")}`}
-              </span>
+              <LiveTimePill streakStart={state.streakStart} />
             </div>
           </CircularProgress>
         </div>

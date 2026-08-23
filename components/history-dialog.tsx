@@ -150,8 +150,12 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
 
                 return (
                   <DropdownMenu key={cell.key}>
-                    <DropdownMenuTrigger disabled={isFuture} asChild>
-                      <button className="flex flex-col items-center justify-center focus:outline-none disabled:cursor-default disabled:opacity-50">
+                    <DropdownMenuTrigger
+                      disabled={isFuture}
+                      render={
+                        <button className="flex flex-col items-center justify-center focus:outline-none disabled:cursor-default disabled:opacity-50" />
+                      }
+                    >
                         <div 
                           className={cn(
                             "flex size-8 sm:size-9 items-center justify-center rounded-full text-xs font-medium transition-colors cursor-pointer",
@@ -166,7 +170,6 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
                         >
                           {cell.day}
                         </div>
-                      </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="center" className="min-w-[180px]">
                       <DropdownMenuItem onClick={() => editHistoryEntry(cell.key, "clean")}>

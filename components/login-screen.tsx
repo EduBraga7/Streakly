@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Shield, Flame } from "lucide-react"
+import Image from "next/image"
+import { Shield, Flame, UserCheck, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signInWithPopup, AuthErrorCodes } from "firebase/auth"
 import { auth } from "@/lib/firebase"
@@ -23,7 +24,11 @@ function GoogleIcon() {
   )
 }
 
-export function LoginScreen() {
+interface LoginScreenProps {
+  onContinueAsGuest?: () => void
+}
+
+export function LoginScreen({ onContinueAsGuest }: LoginScreenProps) {
   const [loadingGoogle, setLoadingGoogle] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -41,19 +46,22 @@ export function LoginScreen() {
       </div>
 
       {/* Card */}
-      <div className="relative z-10 flex w-full max-w-sm flex-col items-center gap-8">
+      <div className="relative z-10 flex w-full max-w-sm flex-col items-center gap-7">
 
         {/* Logo */}
         <div className="flex flex-col items-center gap-4">
-          <div className="relative flex h-16 items-center justify-center shrink-0">
-            <img 
+          <div className="relative flex h-16 w-16 items-center justify-center shrink-0">
+            <Image 
               src="/streakly-assets/logo-color.png" 
               alt="Streakly Logo" 
+              width={64}
+              height={64}
+              priority
               className="h-full w-auto object-contain drop-shadow-md"
             />
           </div>
           <div className="flex flex-col items-center gap-1 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
               Streakly
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -71,13 +79,38 @@ export function LoginScreen() {
           </div>
         </div>
 
-        {/* Auth buttons */}
+        {/* Action buttons */}
         <div className="flex w-full flex-col gap-3">
+          {/* Guest / Instant button */}
+          {onContinueAsGuest && (
+            <Button
+              id="btn-signin-guest"
+              size="lg"
+              className="w-full h-13 gap-2.5 font-bold rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all"
+              disabled={isLoading}
+              onClick={onContinueAsGuest}
+            >
+              <UserCheck className="size-4" />
+              Entrar como Convidado (Modo Local)
+            </Button>
+          )}
+
+          {onContinueAsGuest && (
+            <div className="relative flex items-center justify-center my-1">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border/60" />
+              </div>
+              <span className="relative bg-background px-3 text-[11px] uppercase tracking-wider text-muted-foreground">
+                ou com backup
+              </span>
+            </div>
+          )}
+
           <Button
             id="btn-signin-google"
             size="lg"
             variant="outline"
-            className="w-full gap-3 font-medium"
+            className="w-full h-12 gap-3 font-medium rounded-2xl border-border/80 hover:bg-muted/40 transition-all"
             disabled={isLoading}
             onClick={() => {
               // Popup must be triggered immediately in the click event
@@ -116,10 +149,12 @@ export function LoginScreen() {
           <p className="text-center text-xs text-destructive">{error}</p>
         )}
 
-        {/* Footer note */}
-        <p className="text-center text-xs leading-relaxed text-muted-foreground/60 max-w-xs mt-4">
-          Crie ou entre na sua conta para iniciar seu Onboarding.
-        </p>
+        {/* Trust signal & explanation */}
+        <div className="rounded-xl bg-muted/20 border border-border/40 p-3 text-center">
+          <p className="text-xs text-muted-foreground/80 leading-relaxed">
+            🔒 <strong className="text-foreground/90">100% privado:</strong> no modo convidado seus dados ficam apenas no seu navegador. Você pode sincronizar com o Google a qualquer momento.
+          </p>
+        </div>
       </div>
     </div>
   )

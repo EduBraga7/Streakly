@@ -24,5 +24,21 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'any',
       },
     ],
+    shortcuts: [
+      {
+        name: 'SOS · Momento de Crise',
+        short_name: 'SOS',
+        description: 'Abra imediatamente o modo de alívio e respiração de emergência',
+        url: '/app?action=sos',
+        icons: [{ src: '/streakly-assets/favicon-192.png', sizes: '192x192' }],
+      },
+      {
+        name: 'Check-in Diário',
+        short_name: 'Check-in',
+        description: 'Confirme seu foco diário e mantenha sua sequência',
+        url: '/app?action=checkin',
+        icons: [{ src: '/streakly-assets/favicon-192.png', sizes: '192x192' }],
+      },
+    ],
   }
 }
