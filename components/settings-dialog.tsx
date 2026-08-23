@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Save, TriangleAlert, LogIn, LogOut, Shield, Loader2, Bell, Download, Upload, EyeOff, Eye, Coins, Lock, Fingerprint, KeyRound, HeartHandshake, Volume2, VolumeX } from "lucide-react"
+import { Save, TriangleAlert, LogIn, LogOut, Shield, Loader2, Bell, Download, Upload, EyeOff, Eye, Coins, Lock, Fingerprint, KeyRound, HeartHandshake, Volume2, VolumeX, Calendar } from "lucide-react"
 
 import {
   Dialog,
@@ -51,13 +51,14 @@ function GoogleIcon() {
 }
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
-  const { state, allTrackers, deleteTracker, updateLetter, updateUserName, updateDailyCost, updateGuardian, resetAll, importBackup, user, isGuest, linkWithGoogle, logout } = useTracker()
+  const { state, allTrackers, deleteTracker, updateLetter, updateUserName, updateDailyCost, updateGuardian, updateStreakStart, resetAll, importBackup, user, isGuest, linkWithGoogle, logout } = useTracker()
   const { discreetMode, discreetTitle, toggleDiscreetMode, setDiscreetTitle } = useDiscreetMode()
   const [draft, setDraft] = React.useState(state.letterToSelf)
   const [nameDraft, setNameDraft] = React.useState(state.userName || user?.displayName?.split(" ")[0] || "")
   const [dailyCostDraft, setDailyCostDraft] = React.useState<string>(state.dailyCost ? String(state.dailyCost) : "")
   const [guardianNameDraft, setGuardianNameDraft] = React.useState(state.guardian?.name || "")
   const [guardianPhoneDraft, setGuardianPhoneDraft] = React.useState(state.guardian?.phone || "")
+  const [startDateDraft, setStartDateDraft] = React.useState("")
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [confirmReset, setConfirmReset] = React.useState(false)
   const [confirmDeleteHabit, setConfirmDeleteHabit] = React.useState(false)
@@ -84,6 +85,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   const isGuestOrAnonymous = isGuest || !user || user.isAnonymous
 
+  const toLocalISO = (isoStr: string) => {
+    const d = new Date(isoStr)
+    if (isNaN(d.getTime())) return ""
+    const pad = (n: number) => String(n).padStart(2, "0")
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  }
+
   React.useEffect(() => {
     if (open) {
       setDraft(state.letterToSelf)
@@ -91,6 +99,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       setDailyCostDraft(state.dailyCost !== undefined ? String(state.dailyCost) : "")
       setGuardianNameDraft(state.guardian?.name || "")
       setGuardianPhoneDraft(state.guardian?.phone || "")
+      setStartDateDraft(toLocalISO(state.streakStart))
       setConfirmReset(false)
       setLinkError(null)
       setSoundEnabled(isSoundEffectsEnabled())
@@ -99,7 +108,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       setReminderEnabled(stored.enabled)
       setReminderTime(stored.time)
     }
-  }, [open, state.letterToSelf, state.userName, state.dailyCost, state.guardian, user?.displayName])
+  }, [open, state.letterToSelf, state.userName, state.dailyCost, state.guardian, state.streakStart, user?.displayName])
 
   function handleLinkWithGoogle() {
     setLinking(true)
@@ -258,6 +267,49 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 size="sm"
                 className="shrink-0 h-9"
                 onClick={() => updateUserName(nameDraft.trim())}
+              >
+                Salvar
+              </Button>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* ── Data de Início da Sequência ── */}
+          <div className="flex flex-col gap-2.5">
+            <Label htmlFor="streakStartDate" className="text-sm font-medium flex items-center gap-2">
+              <Calendar className="size-4 text-primary" />
+              Data de Início da Sequência
+            </Label>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Precisa ajustar a data em que você começou? Altere aqui para sincronizar seus dias de sobriedade com precisão.
+            </p>
+            <div className="flex gap-2">
+              <Input
+                id="streakStartDate"
+                type="datetime-local"
+                value={startDateDraft}
+                onChange={(e) => setStartDateDraft(e.target.value)}
+                className="h-9 font-mono text-xs flex-1"
+              />
+              <Button
+                size="sm"
+                className="shrink-0 h-9"
+                onClick={() => {
+                  if (!startDateDraft) return
+                  const parsed = new Date(startDateDraft)
+                  if (isNaN(parsed.getTime())) {
+                    toast.error("Data inválida.")
+                    return
+                  }
+                  if (parsed > new Date()) {
+                    toast.error("A data de início não pode ser no futuro.")
+                    return
+                  }
+                  updateStreakStart(parsed.toISOString())
+                  triggerHaptic("success")
+                  toast.success("Data de início atualizada com sucesso!")
+                }}
               >
                 Salvar
               </Button>

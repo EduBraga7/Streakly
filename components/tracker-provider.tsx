@@ -52,6 +52,7 @@ interface TrackerContextValue {
   updateUserName: (name: string) => void
   updateDailyCost: (cost: number | undefined) => void
   updateGuardian: (guardian: GuardianContact | undefined) => void
+  updateStreakStart: (isoDate: string) => void
   addTrigger: (label: string) => void
   removeTrigger: (id: TriggerId) => void
   updateTrigger: (id: TriggerId, label: string) => void
@@ -129,7 +130,15 @@ export function TrackerProvider({
     setDataReady(false)
     repository.load().then((loaded) => {
       if (active) {
-        setMultiState(loaded)
+        // Auto-recalculate trackers to keep streakStart in sync with history
+        const recalced: Record<string, TrackerState> = {}
+        for (const [id, t] of Object.entries(loaded.trackers)) {
+          recalced[id] = recalculateState(t)
+        }
+        setMultiState({
+          ...loaded,
+          trackers: recalced,
+        })
         setDataReady(true)
       }
     })
@@ -432,6 +441,16 @@ export function TrackerProvider({
     })
   }, [])
 
+  const updateStreakStart = React.useCallback((isoDateStr: string) => {
+    updateActiveTracker((prev) => {
+      const newState = {
+        ...prev,
+        streakStart: isoDateStr,
+      }
+      return recalculateState(newState)
+    })
+  }, [updateActiveTracker])
+
   const addTrigger = React.useCallback((label: string) => {
     updateActiveTracker((prev) => {
       if (!prev.habit) return prev
@@ -537,6 +556,7 @@ export function TrackerProvider({
       updateUserName,
       updateDailyCost,
       updateGuardian,
+      updateStreakStart,
       addTrigger,
       removeTrigger,
       updateTrigger,
@@ -548,7 +568,7 @@ export function TrackerProvider({
       linkWithGoogle,
       logout,
     }),
-    [state, allTrackers, activeTrackerId, dataReady, user, isGuest, continueAsGuest, switchTracker, createTracker, deleteTracker, checkIn, markCrisisSurvived, registerRelapse, updateLetter, resetAll, undoLastAction, importBackup, editHistoryEntry, completeOnboarding, updateUserName, updateDailyCost, updateGuardian, addTrigger, removeTrigger, updateTrigger, addRewardGoal, removeRewardGoal, toggleRewardGoalCompleted, previousMultiState, checkedInToday, linkWithGoogle, logout],
+    [state, allTrackers, activeTrackerId, dataReady, user, isGuest, continueAsGuest, switchTracker, createTracker, deleteTracker, checkIn, markCrisisSurvived, registerRelapse, updateLetter, resetAll, undoLastAction, importBackup, editHistoryEntry, completeOnboarding, updateUserName, updateDailyCost, updateGuardian, updateStreakStart, addTrigger, removeTrigger, updateTrigger, addRewardGoal, removeRewardGoal, toggleRewardGoalCompleted, previousMultiState, checkedInToday, linkWithGoogle, logout],
   )
 
   // ── Render gates ──────────────────────────────────────────
