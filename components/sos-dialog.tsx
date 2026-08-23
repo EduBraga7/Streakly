@@ -187,7 +187,7 @@ export function SosDialog({ open, onOpenChange }: SosDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-[95vw] sm:max-w-lg gap-0 overflow-y-auto p-5 sm:p-6">
+      <DialogContent className="max-h-[90vh] w-[95vw] sm:max-w-lg gap-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
         <DialogHeader className="text-center sm:text-center pb-2">
           <DialogTitle className="text-lg sm:text-xl font-bold flex items-center justify-center gap-2 text-foreground">
             <Flame className="size-5 text-destructive" />
@@ -199,23 +199,23 @@ export function SosDialog({ open, onOpenChange }: SosDialogProps) {
         </DialogHeader>
 
         <Tabs defaultValue="breathe" className="w-full mt-3">
-          <TabsList className="grid w-full grid-cols-4 h-10 p-1 bg-muted/40 rounded-xl">
-            <TabsTrigger value="breathe" className="text-[11px] font-semibold rounded-lg">
+          <TabsList className="grid w-full grid-cols-4 h-9 p-1 bg-muted/40 rounded-xl">
+            <TabsTrigger value="breathe" className="text-[10px] sm:text-xs font-semibold rounded-lg px-1 truncate">
               Respiração
             </TabsTrigger>
-            <TabsTrigger value="surf" className="text-[11px] font-semibold rounded-lg">
-              Surfar (15m)
+            <TabsTrigger value="surf" className="text-[10px] sm:text-xs font-semibold rounded-lg px-1 truncate">
+              Surfar 15m
             </TabsTrigger>
-            <TabsTrigger value="grounding" className="text-[11px] font-semibold rounded-lg">
+            <TabsTrigger value="grounding" className="text-[10px] sm:text-xs font-semibold rounded-lg px-1 truncate">
               5-4-3-2-1
             </TabsTrigger>
-            <TabsTrigger value="help" className="text-[11px] font-semibold rounded-lg">
+            <TabsTrigger value="help" className="text-[10px] sm:text-xs font-semibold rounded-lg px-1 truncate">
               Ajuda 24h
             </TabsTrigger>
           </TabsList>
 
           {/* ── ABA 1: RESPIRAÇÃO & AÇÕES DE CHOQUE ── */}
-          <TabsContent value="breathe" className="mt-4 focus-visible:outline-none flex flex-col gap-5">
+          <TabsContent value="breathe" className="mt-4 focus-visible:outline-none flex flex-col gap-4">
             <BreathingCircle />
 
             <section className="flex flex-col gap-2.5">
@@ -234,13 +234,13 @@ export function SosDialog({ open, onOpenChange }: SosDialogProps) {
                     <li key={action.id}>
                       <label
                         className={cn(
-                          "flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-xs transition-colors select-none",
+                          "flex cursor-pointer items-center justify-between gap-2.5 rounded-xl border px-3 py-2 text-xs transition-colors select-none",
                           isChecked
                             ? "border-primary/40 bg-primary/10 text-muted-foreground"
                             : "border-border/60 bg-muted/20 hover:border-border hover:bg-muted/40"
                         )}
                       >
-                        <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
                           <Checkbox
                             checked={isChecked}
                             onCheckedChange={(value) => {
@@ -249,7 +249,7 @@ export function SosDialog({ open, onOpenChange }: SosDialogProps) {
                             }}
                           />
                           <span className="text-sm shrink-0">{action.icon}</span>
-                          <span className={cn("truncate", isChecked && "line-through text-muted-foreground")}>
+                          <span className={cn("truncate text-xs", isChecked && "line-through text-muted-foreground")}>
                             {action.text}
                           </span>
                         </div>
@@ -452,15 +452,15 @@ export function SosDialog({ open, onOpenChange }: SosDialogProps) {
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-3.5 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all group"
+                className="flex items-center justify-between p-3 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all group gap-2"
               >
-                <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 shrink-0">
-                    <MessageCircle className="size-5" />
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="size-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 shrink-0">
+                    <MessageCircle className="size-4" />
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-foreground">Chamar Guardião ({state.guardian.name})</span>
-                    <span className="text-[11px] text-emerald-500 font-semibold">Pedir apoio direto no WhatsApp 💬</span>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="text-xs font-bold text-foreground truncate">Chamar Guardião ({state.guardian.name})</span>
+                    <span className="text-[10px] text-emerald-500 font-semibold truncate">Pedir apoio no WhatsApp 💬</span>
                   </div>
                 </div>
                 <ExternalLink className="size-4 text-emerald-500 group-hover:translate-x-0.5 transition-transform shrink-0" />

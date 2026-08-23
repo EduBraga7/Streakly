@@ -109,23 +109,23 @@ export function BreathingCircle() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 py-2">
-      <div className="relative flex size-52 items-center justify-center">
+    <div className="flex flex-col items-center gap-3.5 py-1 w-full overflow-hidden">
+      <div className="relative flex size-44 items-center justify-center my-1">
         {/* halo estático */}
-        <div className="absolute size-52 rounded-full bg-primary/5" />
+        <div className="absolute size-44 rounded-full bg-primary/5" />
         {/* círculo que respira */}
-        <div className="animate-breathe absolute size-52 rounded-full bg-primary/15 ring-1 ring-primary/30" />
-        <div className="relative z-10 flex flex-col items-center gap-1">
-          <span className="text-lg font-medium text-foreground">{phase}</span>
-          <span className="text-4xl font-semibold tabular-nums text-primary">
+        <div className="animate-breathe absolute size-44 rounded-full bg-primary/15 ring-1 ring-primary/30" />
+        <div className="relative z-10 flex flex-col items-center gap-0.5">
+          <span className="text-base font-semibold text-foreground">{phase}</span>
+          <span className="text-3xl font-black tabular-nums text-primary">
             {count}
           </span>
         </div>
       </div>
 
-      <div className="flex items-center justify-between w-full px-2 text-xs text-muted-foreground">
-        <p className="text-[11px] text-muted-foreground flex-1">
-          Acompanhe o círculo: inspire 4s, segure 4s e expire 4s.
+      <div className="flex items-center justify-between w-full px-1 text-xs text-muted-foreground gap-2">
+        <p className="text-[11px] text-muted-foreground flex-1 min-w-0">
+          Inspire 4s, segure 4s e expire 4s.
         </p>
 
         <Button
